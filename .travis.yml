@@ -1,0 +1,30 @@
+language: go
+
+go:
+  - '1.11.x'
+
+stages:
+  - name: test
+  - name: release
+    if: tag IS present
+
+go_import_path: github.com/src-d/kubernetes-local-pv-provisioner
+
+jobs:
+  include:
+    - name: 'Unit tests'
+      stage: test
+      script: make test
+    - name: 'Check deps'
+      install:
+        - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+      script:
+        - dep ensure -v
+        - make no-changes-in-commit
+        - make build
+        - make no-changes-in-commit
+    - name: 'Push image to Docker Hub'
+      stage: release
+      script:
+        - PKG_OS=linux make packages
+        - DOCKER_PUSH_LATEST=true make docker-push
