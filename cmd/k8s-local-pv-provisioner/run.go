@@ -95,14 +95,14 @@ func (r *RunCommand) setUpPV(pv *core_v1.PersistentVolume) {
 			}
 			if matchExpression.Operator == core_v1.NodeSelectorOperator("In") {
 				for _, value := range matchExpression.Values {
-					if value == r.NodeName { // replace me with an env var!!!!
+					if value == r.NodeName {
 						matches = true
 					}
 				}
 			} else if matchExpression.Operator == core_v1.NodeSelectorOperator("NotIn") {
 				matches = true
 				for _, value := range matchExpression.Values {
-					if value == r.NodeName { // replace me with an env var!!!!
+					if value == r.NodeName {
 						matches = false
 					}
 				}
