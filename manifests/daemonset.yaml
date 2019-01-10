@@ -20,7 +20,6 @@ spec:
         name: k8s-local-pv-provisioner
     spec:
       serviceAccountName: k8s-local-pv-provisioner
-      hostNetwork: true
       restartPolicy: Always
       containers:
         - image: src-d/k8s-local-pv-provisioner
