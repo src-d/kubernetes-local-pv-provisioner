@@ -86,8 +86,12 @@ func (r *RunCommand) setUpPV(pv *core_v1.PersistentVolume) {
 		return
 	}
 
+	if pv.Spec.NodeAffinity == nil || pv.Spec.NodeAffinity.Required == nil || pv.Spec.NodeAffinity.Required.NodeSelectorTerms == nil {
+		log.Infof("%s does not have correct NodeAffinity, skipping", pv.ObjectMeta.Name)
+		return
+	}
+
 	matches := false
-	// We can assume this is not nil as `Spec.Local` is invalid without NodeAffinity
 	for _, term := range pv.Spec.NodeAffinity.Required.NodeSelectorTerms {
 		for _, matchExpression := range term.MatchExpressions {
 			if matchExpression.Key != "kubernetes.io/hostname" { // we only have hostname support
