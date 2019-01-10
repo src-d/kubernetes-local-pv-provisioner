@@ -25,7 +25,7 @@ func init() {
 type RunCommand struct {
 	gocli.PlainCommand `name:"run" short-description:"run a watcher for PVs" long-description:"Run an in-cluster watcher for PVs and create the needed paths if needed"`
 	NodeName           string `long:"node-name" required:"true" env:"NODE_NAME" description:"Hostname of the current node the pod runs on"`
-	KubernetesContext  string `long:"context" env:"KUBERNETES_CONTEXT" description:"If set the program will oad the kubernetes configuraion from a kubeconfig file for the given context"`
+	KubernetesContext  string `long:"context" env:"KUBERNETES_CONTEXT" description:"If set the program will load the kubernetes configuration from a kubeconfig file for the given context"`
 	RootfsPath         string `long:"rootfs-path" env:"ROOTFS_PATH" default:"/rootfs" description:"Path to the mounted root file system of the node"`
 }
 
