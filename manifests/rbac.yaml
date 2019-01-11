@@ -29,6 +29,6 @@ roleRef:
   kind: ClusterRole
   name: k8s-local-pv-provisioner
 subjects:
-- kind: ServiceAccount
-  name: k8s-local-pv-provisioner
-  namespace: kube-system
+  - kind: ServiceAccount
+    name: k8s-local-pv-provisioner
+    namespace: kube-system
