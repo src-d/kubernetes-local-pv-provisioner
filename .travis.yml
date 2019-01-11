@@ -17,6 +17,9 @@ jobs:
       script: make test
     - name: 'Yaml tests'
       stage: test
+      before_install:
+        - sudo apt-get update
+        - sudo apt-get install -y yamllint
       script:
         - find -regex '.*\.ya?ml' -not -path "./vendor/*" -not -path "./.travis.yml" | xargs -n1 yamllint
     - name: 'Check deps'
