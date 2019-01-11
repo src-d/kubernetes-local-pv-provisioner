@@ -1,0 +1,40 @@
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: k8s-local-pv-provisioner
+  namespace: kube-system
+  labels:
+    k8s-app: k8s-local-pv-provisioner
+    name: k8s-local-pv-provisioner
+spec:
+  selector:
+    matchLabels:
+      name: k8s-local-pv-provisioner
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        k8s-app: k8s-local-pv-provisioner
+        name: k8s-local-pv-provisioner
+    spec:
+      serviceAccountName: k8s-local-pv-provisioner
+      restartPolicy: Always
+      containers:
+        - image: src-d/k8s-local-pv-provisioner
+          imagePullPolicy: Always
+          name: k8s-local-pv-provisioner
+          volumeMounts:
+            - mountPath: /rootfs
+              name: rootfs
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+      volumes:
+        - name: rootfs
+          hostPath:
+            path: /
+            type: Directory

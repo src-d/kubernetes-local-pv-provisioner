@@ -1,0 +1,37 @@
+language: go
+dist: xenial
+go:
+  - '1.11.x'
+
+stages:
+  - name: test
+  - name: release
+    if: tag IS present
+
+go_import_path: github.com/src-d/kubernetes-local-pv-provisioner
+
+jobs:
+  include:
+    - name: 'Unit tests'
+      stage: test
+      script: make test
+    - name: 'Yaml tests'
+      stage: test
+      before_install:
+        - sudo apt-get update
+        - sudo apt-get install -y yamllint
+      script:
+        - find -regex '.*\.ya?ml' -not -path "./vendor/*" -not -path "./.travis.yml" | xargs -n1 yamllint
+    - name: 'Check deps'
+      install:
+        - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+      script:
+        - dep ensure -v
+        - make no-changes-in-commit
+        - make build
+        - make no-changes-in-commit
+    - name: 'Push image to Docker Hub'
+      stage: release
+      script:
+        - PKG_OS=linux make packages
+        - DOCKER_PUSH_LATEST=true make docker-push
