@@ -1,6 +1,6 @@
 # Kubernetes Local PV Provisioner
 
-Kubernetes Local PV Provisioner helps you setting up (local persistent volumes)[https://kubernetes.io/docs/concepts/storage/volumes/#local] by looking at the state and creating an empty directory on the filesystem of the correct Kubernetes server if needed.
+Kubernetes Local PV Provisioner helps you setting up [local persistent volumes](https://kubernetes.io/docs/concepts/storage/volumes/#local) by looking at the state and creating an empty directory on the filesystem of the correct Kubernetes server if needed.
 
 # Installation
 
