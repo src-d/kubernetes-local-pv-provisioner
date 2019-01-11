@@ -15,6 +15,10 @@ jobs:
     - name: 'Unit tests'
       stage: test
       script: make test
+    - name: 'Yaml tests'
+      stage: test
+      script:
+        - find -regex '.*\.ya?ml' -not -path "./vendor/*" -not -path "./.travis.yml" | xargs -n1 yamllint
     - name: 'Check deps'
       install:
         - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
