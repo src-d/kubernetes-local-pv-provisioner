@@ -2,19 +2,21 @@ package main
 
 import (
 	"context"
-	"errors"
 	"os"
+	"os/signal"
 	"path"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/apex/log"
 
 	gocli "gopkg.in/src-d/go-cli.v0"
 	core_v1 "k8s.io/api/core/v1"
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/watch"
+	coreinformers "k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
@@ -35,26 +37,26 @@ func (r *RunCommand) ExecuteContext(ctx context.Context, args []string) error {
 		return err
 	}
 
-	watcher, err := client.CoreV1().PersistentVolumes().Watch(meta_v1.ListOptions{})
-	if err != nil {
-		return err
-	}
-	watcher.ResultChan()
-L:
-	for {
-		select {
-		case <-ctx.Done():
-			watcher.Stop()
-			break L
-		case event := <-watcher.ResultChan():
-			if event.Type == watch.Error {
-				return errors.New("Got kubernetes watch error")
-			}
-			if event.Type == watch.Added || event.Type == watch.Modified {
-				r.setUpPV(event.Object.(*core_v1.PersistentVolume))
-			}
-		}
-	}
+	pvInformer := coreinformers.NewPersistentVolumeInformer(client, time.Minute, cache.Indexers{})
+
+	pvInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			r.setUpPV(obj.(*core_v1.PersistentVolume))
+		},
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			r.setUpPV(newObj.(*core_v1.PersistentVolume))
+		},
+	})
+
+	stop := make(chan struct{})
+	defer close(stop)
+	go pvInformer.Run(stop)
+
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+
+	<-sig
+	stop <- struct{}{}
 
 	return nil
 }
